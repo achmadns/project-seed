@@ -20,8 +20,8 @@ import static reactor.Environment.get;
 import static reactor.bus.EventBus.create;
 import static reactor.bus.selector.Selectors.$;
 
-public class EventBustNotifiedFromOtherThread {
-    private static final Logger log = LoggerFactory.getLogger(EventBustNotifiedFromOtherThread.class);
+public class EventBusExperiment {
+    private static final Logger log = LoggerFactory.getLogger(EventBusExperiment.class);
     private final ExecutorService executor = Executors.newFixedThreadPool(1);
 
     static {
@@ -102,7 +102,6 @@ public class EventBustNotifiedFromOtherThread {
             try {
                 sleep(1000);
                 promise.onNext(System.currentTimeMillis());
-
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
