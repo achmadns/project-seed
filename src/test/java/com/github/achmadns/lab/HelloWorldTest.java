@@ -40,14 +40,24 @@ public class HelloWorldTest {
     }
 
     @Test
+    public void push_should_success() {
+        assertThat("hello achmad").isEqualTo(testHttpClient(aut)
+                .requestSpec(request -> request.body(body -> body.text("name=achmad"))).postText("hello"));
+    }
+
+    @Test
     public void publish_message_should_success() throws InterruptedException {
         final Promise<String> promise = Promises.prepare(Environment.get());
         final CountDownLatch latch = new CountDownLatch(1);
         promise.onComplete(promised -> latch.countDown());
-        final WebSocketClient client = new WebSocketClient(URI.create(aut.getAddress().toString() + "ws")) {
+        final String host = aut.getAddress().getHost();
+        final int port = aut.getAddress().getPort();
+        final String url = "ws://" + host + ":" + port + "/ws";
+        final WebSocketClient client = new WebSocketClient(URI.create(url)) {
             @Override
             public void onOpen(ServerHandshake handshakedata) {
                 send("send some data");
+                log.info("Connected to {}", url);
             }
 
             @Override

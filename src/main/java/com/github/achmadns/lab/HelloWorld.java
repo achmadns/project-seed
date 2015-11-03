@@ -8,13 +8,14 @@ import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
-import ratpack.spring.Spring;
+import ratpack.form.Form;
 import ratpack.websocket.WebSocket;
 import ratpack.websocket.WebSocketClose;
 import ratpack.websocket.WebSocketHandler;
 import ratpack.websocket.WebSocketMessage;
 
 import static ratpack.server.RatpackServer.start;
+import static ratpack.spring.Spring.spring;
 import static ratpack.websocket.WebSockets.websocket;
 
 @EnableAutoConfiguration
@@ -23,7 +24,7 @@ public class HelloWorld implements ApplicationListener<ContextRefreshedEvent> {
 
     public static void main(String[] args) throws Exception {
         start(spec -> {
-            spec.registry(Spring.spring(HelloWorld.class));
+            spec.registry(spring(HelloWorld.class, args));
             spec.handlers(chain -> {
                 final ConnectionFactory connectionFactory = chain.getRegistry().get(ConnectionFactory.class);
                 final Connection connection = connectionFactory.createConnection();
@@ -62,6 +63,15 @@ public class HelloWorld implements ApplicationListener<ContextRefreshedEvent> {
                 chain.prefix("ping", ping -> {
                     ping.all(context -> {
                         context.render("pong");
+                    });
+                });
+                chain.prefix("hello", push -> {
+                    push.post(ctx -> {
+                        ctx.parse(Form.class)
+                                .then(form -> {
+                                    final String name = form.get("name");
+                                    ctx.render("hello " + name);
+                                });
                     });
                 });
             });
